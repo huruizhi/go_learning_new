@@ -37,6 +37,7 @@ func readFileByFor() {
 // 方式2 按行读
 func readFileByBuf() {
 	file, err := os.Open("./file")
+	file.Read()
 	defer file.Close()
 	if err != nil {
 		fmt.Printf("read file filed err:%v", err)
