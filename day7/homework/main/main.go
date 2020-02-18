@@ -1,5 +1,9 @@
 package main
 
+import (
+	"go_learning_new/day7/homework/go_ini"
+)
+
 type MysqlConnection struct {
 	Address  string `init:address`
 	Port     int    `init:port`
@@ -7,12 +11,7 @@ type MysqlConnection struct {
 	Password string `init:password`
 }
 
-func loadIni(v interface{}) {
-
-}
-
 func main() {
 	var mysqlConfig MysqlConnection
-	loadIni(&mysqlConfig)
-
+	go_ini.ParseIni("./config.ini", mysqlConfig)
 }
