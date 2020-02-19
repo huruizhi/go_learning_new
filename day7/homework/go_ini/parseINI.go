@@ -2,6 +2,7 @@ package go_ini
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -52,4 +53,5 @@ func fileIsValid(filePath string) (f *os.File) {
 		panic(err)
 	}
 	return f
+	json.Unmarshal()
 }
