@@ -7,6 +7,7 @@ import (
 	"path"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -60,10 +61,14 @@ func parseLogLevel(level logLevel) (string, error) {
 	return "", err
 }
 
+var lock sync.Mutex
+
 type logFileWriter struct {
-	level   logLevel
-	fileObj *os.File
-	logChan chan string
+	fileName string
+	filePath string
+	level    logLevel
+	fileObj  *os.File
+	logChan  chan string
 }
 
 func NewLogFileWriter(filePath string, fileName string, level string) logFileWriter {
@@ -79,10 +84,13 @@ func NewLogFileWriter(filePath string, fileName string, level string) logFileWri
 	}
 
 	l := logFileWriter{
-		level:   levelInfo,
-		fileObj: fileObj,
-		logChan: make(chan string, 1000),
+		fileName: fileName,
+		filePath: filePath,
+		level:    levelInfo,
+		fileObj:  fileObj,
+		logChan:  make(chan string, 1000),
 	}
+	go l.logFileCuter()
 	go l.writeLog()
 	return l
 }
@@ -113,13 +121,19 @@ func (l logFileWriter) logToChan(level logLevel, format string, a ...interface{}
 	l.logChan <- logMsg
 }
 
-func (l logFileWriter) writeLog() {
+func (l *logFileWriter) writeLog() {
 	for {
+		lock.Lock()
 		logMsg, ok := <-l.logChan
 		if !ok {
 			continue
 		}
-		l.fileObj.WriteString(logMsg)
+		_, err := l.fileObj.WriteString(logMsg)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		lock.Unlock()
 	}
 }
 
@@ -161,4 +175,25 @@ func (l logFileWriter) Fatal(format string, a ...interface{}) {
 
 func (l logFileWriter) enable(lv logLevel) bool {
 	return lv >= l.level
+}
+
+func (l *logFileWriter) logFileCuter() {
+	min := time.Now().Minute()
+	for {
+
+		minNow := time.Now().Minute()
+		if time.Now().Second() == 0 && minNow != min {
+			min = minNow
+			lock.Lock()
+			l.fileObj.Close()
+			file := path.Join(l.filePath, time.Now().Format("20060102150405.log"))
+			os.Rename(path.Join(l.filePath, l.fileName), file)
+			fmt.Printf("切割日志到%s\n", file)
+
+			file = path.Join(l.filePath, l.fileName)
+			l.fileObj, _ = os.OpenFile(file, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+			lock.Unlock()
+
+		}
+	}
 }
