@@ -1,17 +1,21 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
 
 func main() {
-	ch1 := make(chan int, 100)
+	file, _ := os.OpenFile("a.txt", os.O_RDONLY, 0644)
+	//scanner := bufio.NewScanner(file)
+	//for scanner.Scan() {
+	//	txt := scanner.Text()
+	//	fmt.Println(txt)
+	//}
+	var b [2048]byte
+	reader := bufio.NewReader(file)
+	n, _ := reader.Read(b[:])
+	fmt.Println(string(b[:n]))
 
-	for i := 0; i < 10; i++ {
-		ch1 <- i
-	}
-
-	close(ch1)
-
-	for x := range ch1 {
-		fmt.Println(x)
-	}
 }
