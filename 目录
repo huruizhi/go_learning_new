@@ -43,3 +43,9 @@ day10:
 context
 单元测试
 pprof
+
+day11:
+1. mysql   go get -v github.com/go-sql-driver/mysql
+2. redis
+3. NSQ
+4. 包管理 go model
