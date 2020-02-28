@@ -18,8 +18,8 @@ func DBInit() (err error) {
 	dsn := "newhope:ozN0sKv@tcp(10.60.50.9:3318)/ttt"
 	db, err = sql.Open("mysql", dsn)
 
-	db.SetMaxOpenConns(100) //设置连接池的最大连接数量
-	db.SetMaxIdleConns(10)  //设置最大空闲连接数，
+	db.SetMaxOpenConns(100) // 设置连接池的最大连接数量
+	db.SetMaxIdleConns(10)  // 设置最大空闲连接数，
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -38,12 +38,31 @@ func queryRow(n int) {
 	selectstr := "select * from user where id=?;"
 	var res user
 	rowObj := db.QueryRow(selectstr, n)
-	rowObj.Scan(&res.id, &res.name, &res.age) //必须对rowObj进行scan 来关闭连接，不然会一直占用连接池的数据库连接数量。
+	rowObj.Scan(&res.id, &res.name, &res.age) // 必须对rowObj进行scan 来关闭连接，不然会一直占用连接池的数据库连接数量。
 	fmt.Println(res)
+}
+
+//多行查询
+func queryRows(n int) {
+	selectstr := "select id,name,age from user where id>?;"
+	rowsObj, err := db.Query(selectstr, n)
+	// 调用关闭
+	defer rowsObj.Close()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for rowsObj.Next() {
+		var res user
+		rowsObj.Scan(&res.id, &res.name, &res.age)
+		fmt.Println(res)
+	}
 }
 
 func main() {
 	DBInit()
 	queryRow(1)
 	queryRow(2)
+	queryRows(1)
 }
