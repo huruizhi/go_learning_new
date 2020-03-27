@@ -4,12 +4,6 @@ import (
 	"fmt"
 )
 
-/*
-使用 goroutine 和channel 实现一个计算int64随机数各位数的程序
-1. 开启一个goroutine 循环生成int64的随机数 发送到jobChan
-2. 开24 个 goroutine 从jobChan 中取出并计算各位之和保存到resultChan
-3.  主goroutine 从 resultChan 中取出结果打印到终端
-*/
 
 func main() {
 	chan1 := make(chan int64, 1)
