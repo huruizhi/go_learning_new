@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 )
 
@@ -26,11 +25,8 @@ func hit(a animal) { // 实现了接口animal 中speak方法的结构体 都可�
 }
 
 func main() {
-	fmt.Println(a, b)
 	d := dog{}
 	hit(d)
 	c := cat{}
 	hit(c)
-	flag.Duration()
-
 }
